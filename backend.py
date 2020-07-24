@@ -1,9 +1,16 @@
 import sqlite3
 from datetime import datetime
 
-def retrieve_events(match: str=''):
-    conn = sqlite3.connect('data/test.db')
+conn = sqlite3.connect('data/test.db')
+
+
+def retrieve_events(match: str = ''):
+    start = datetime.now()
     cursor = conn.cursor()
-    cursor.execute('''SELECT time, name, data, notes from events LEFT JOIN event_types''')
-    return [(datetime.fromtimestamp(x[0]).strftime('%d %b %y %H:%M:%S'), x[1], x[2], x[3]) for x in cursor.fetchall()
-            if match in x[1]]
+    cursor.execute(
+        f'''SELECT time, name, data, notes from events INNER JOIN event_types on events.type_id = event_types.id 
+        WHERE name LIKE '%{match}%' ORDER BY time DESC LIMIT 100''')
+    x = [(datetime.fromtimestamp(x[0]).strftime('%d %b %y %H:%M:%S'), x[1], x[2], x[3]) for x in cursor.fetchall()]
+    end = datetime.now()
+    print('retrieve_events: ', end - start)
+    return x

@@ -1,18 +1,23 @@
 from PyQt5 import QtWidgets, uic
 import sys  # We need sys so that we can pass argv to QApplication
 import backend
+from datetime import datetime
 
 from PyQt5.QtWidgets import *
+max_rows = 100
 
 
 def reload_page(table: QtWidgets.QTableWidget, data):
-    table.setRowCount(len(data))
-    for i in range(len(data)):
+    start = datetime.now()
+    table.setRowCount(min(max_rows, len(data)))
+    for i in range(min(max_rows, len(data))):
         for j in range(len(data[i])):
             table.setItem(i, j, QTableWidgetItem(str(data[i][j])))
     header = table.verticalHeader()
-    for i in range(len(data)):
+    for i in range(min(max_rows, len(data))):
         header.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
+    end = datetime.now()
+    print('reload_page: ', end - start)
 
 
 class MainWindow(QtWidgets.QMainWindow):

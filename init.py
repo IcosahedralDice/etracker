@@ -2,7 +2,7 @@ import sqlite3
 
 types_q = '''CREATE TABLE IF NOT EXISTS event_types (
                                         id integer PRIMARY KEY,
-                                        name text NOT NULL,
+                                        name text NOT NULL UNIQUE,
                                         type TEXT
                                     ); '''
 event_q = '''CREATE TABLE IF NOT EXISTS events (
