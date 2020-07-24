@@ -9,19 +9,15 @@ max_rows = 1000
 
 
 def reload_page(table: QtWidgets.QTableWidget, data):
-    table.setUpdatesEnabled(True)
-    start = datetime.now()
     for i in range(min(max_rows, len(data))):
         for j in range(len(data[i])):
             table.item(i, j).setText(data[i][j])
     for i in range(min(max_rows, len(data)), max_rows):
         for j in range(4):
             table.item(i, j).setText('')
-    end = datetime.now()
     table.resizeColumnsToContents()
     table.resizeRowsToContents()
-
-    print('reload_page: ', end - start)
+    table.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -31,15 +27,11 @@ class MainWindow(QtWidgets.QMainWindow):
         # Load the UI Page
         uic.loadUi('MainWindow.ui', self)
         header = self.tableWidget.horizontalHeader()
-        #header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-        #header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
-        #header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
         header.setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
 
         self.tableWidget.setRowCount(max_rows)
         ohead = self.tableWidget.verticalHeader()
         for i in range(max_rows):
-            #ohead.setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
             for j in range(4):
                 self.tableWidget.setItem(i, j, QTableWidgetItem(''))
 
