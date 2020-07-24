@@ -11,6 +11,7 @@ event_q = '''CREATE TABLE IF NOT EXISTS events (
                                     time integer, 
                                     data text, 
                                     notes text, 
+                                    created_time integer, 
                                     FOREIGN KEY (type_id) REFERENCES event_types (id)
                                 );'''
 db = sqlite3.connect('data/test.db')
