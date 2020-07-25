@@ -8,21 +8,11 @@ from PyQt5.QtWidgets import *
 max_rows = 1000
 
 
-def reload_page(table: QtWidgets.QTableWidget, data):
-    table.setUpdatesEnabled(False)
-    table.setRowCount(min(max_rows, len(data)))
-    for i in range(min(max_rows, len(data))):
-        for j in range(len(data[i])):
-            table.setItem(i, j, QTableWidgetItem(data[i][j]))
-    table.resizeColumnsToContents()
-    table.resizeRowsToContents()
-    table.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
-    table.setUpdatesEnabled(True)
-
-
 class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, *args, **kwargs):
+        self.displaying_events = True
+
         super(MainWindow, self).__init__(*args, **kwargs)
 
         # Load the UI Page
@@ -37,9 +27,48 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.tableWidget.setItem(i, j, QTableWidgetItem(''))
 
         self.searchBar.textEdited.connect(
-            lambda x: reload_page(self.tableWidget, backend.retrieve_events(x, limit=max_rows)))
+            lambda x: self.reload_page(self.tableWidget, x))
+        self.addButton.clicked.connect(
+            lambda x: self.change_table_display(self.addButton))
 
-        reload_page(self.tableWidget, backend.retrieve_events(limit=max_rows))
+        self.reload_page(self.tableWidget)
+
+    def change_table_display(self, button: QtWidgets.QPushButton):
+        self.displaying_events = not self.displaying_events
+        button.setText('Types' if self.displaying_events else 'Events')
+        self.reload_page(self.tableWidget)
+
+    def reload_page(self, table: QtWidgets.QTableWidget, match: str = ''):
+        if self.displaying_events:
+            table.setUpdatesEnabled(False)
+            data = backend.retrieve_events(limit=max_rows, match=match)
+
+            table.setColumnCount(4)
+            table.setHorizontalHeaderLabels(['Time', 'Event', 'Data', 'Notes'])
+            table.setRowCount(min(max_rows, len(data)))
+
+            for i in range(min(max_rows, len(data))):
+                for j in range(len(data[i])):
+                    table.setItem(i, j, QTableWidgetItem(data[i][j]))
+            table.resizeColumnsToContents()
+            table.resizeRowsToContents()
+            table.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
+            table.setUpdatesEnabled(True)
+        else:
+            data = backend.retrieve_event_types(match=match)
+
+            table.setUpdatesEnabled(False)
+            table.setColumnCount(2)
+            table.setHorizontalHeaderLabels(['Type', 'Name'])
+            table.setRowCount(len(data))
+
+            for i in range(len(data)):
+                table.setItem(i, 0, QTableWidgetItem(data[i][0]))
+                table.setItem(i, 1, QTableWidgetItem(data[i][1]))
+            table.resizeColumnsToContents()
+            table.resizeRowsToContents()
+            table.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+            table.setUpdatesEnabled(True)
 
 
 app = QtWidgets.QApplication(sys.argv)

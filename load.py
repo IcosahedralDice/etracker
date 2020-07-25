@@ -31,7 +31,8 @@ with open(fname) as csv_file:
         cursor.execute(f'SELECT id from event_types WHERE name = \'{event_type}\'')
         id = cursor.fetchall()[0][0]
         cursor.execute('INSERT INTO events (type_id, time, data, notes, created_time) VALUES (?, ?, ?, ?, ?)',
-                       (id, datetime.strptime(date, '%d %b %Y %H:%M').timestamp(), row[3], row[4], datetime.strptime(on, '%d %b %Y %H:%M:%S')))
+                       (id, datetime.strptime(date, '%d %b %Y %H:%M').timestamp(), row[3], row[4],
+                        datetime.strptime(on, '%d %b %Y %H:%M:%S')))
         conn.commit()
 
         processed += 1
