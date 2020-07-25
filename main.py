@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, uic, QtCore
 import sys  # We need sys so that we can pass argv to QApplication
 import backend
 from datetime import datetime
@@ -21,6 +21,8 @@ class MainWindow(QtWidgets.QMainWindow):
         header.setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
 
         self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.tableWidget.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.tableWidget.setSelectionMode(QAbstractItemView.NoSelection)
 
         self.searchBar.textEdited.connect(
             lambda x: self.reload_page(self.tableWidget, x))
