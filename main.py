@@ -20,11 +20,7 @@ class MainWindow(QtWidgets.QMainWindow):
         header = self.tableWidget.horizontalHeader()
         header.setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
 
-        self.tableWidget.setUpdatesEnabled(False)
-        self.tableWidget.setRowCount(max_rows)
-        for i in range(max_rows):
-            for j in range(4):
-                self.tableWidget.setItem(i, j, QTableWidgetItem(''))
+        self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
 
         self.searchBar.textEdited.connect(
             lambda x: self.reload_page(self.tableWidget, x))

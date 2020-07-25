@@ -8,7 +8,7 @@ def retrieve_events(match: str = '', limit: int = 100):
     cursor = conn.cursor()
     cursor.execute(
         f'''SELECT time, name, data, notes from events INNER JOIN event_types on events.type_id = event_types.id 
-        WHERE name LIKE '%{match}%' ORDER BY time DESC LIMIT {limit}''')
+        WHERE name LIKE '%{match}%' or notes like '%{match}%' ORDER BY time DESC LIMIT {limit}''')
     x = [(datetime.fromtimestamp(x[0]).strftime('%d %b %y %H:%M'), x[1], x[2], x[3]) for x in cursor.fetchall()]
     return x
 
