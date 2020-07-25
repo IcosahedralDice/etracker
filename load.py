@@ -19,7 +19,7 @@ with open(fname) as csv_file:
 
         date = f'{row[0]} {row[1]}'
         event_type = row[2]
-        if row[3] is None:
+        if row[3] == '':
             event_type_type = 'Normal'
         elif row[3] == 'Done' or row[3] == 'Skipped':
             event_type_type = 'Bool'
