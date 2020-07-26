@@ -86,7 +86,39 @@ class MainWindow(QtWidgets.QMainWindow):
                 result = dialog.exec()
                 notes = dialog.notesInput.text()
                 dt = dialog.timeInput.dateTime()
-                backend.new_event(self.table_row_ids[position.row()], dt.toSecsSinceEpoch(), notes, None)
+                if result:
+                    backend.new_event(self.table_row_ids[position.row()], dt.toSecsSinceEpoch(), notes, None)
+
+            elif type == 'Bool':
+                dialog = uic.loadUi('uifiles/BoolEvent.ui')
+                dialog.setWindowTitle(f'{name}')
+                dialog.timeInput.setDateTime(datetime.now())
+                result = dialog.exec()
+                checked = dialog.doneCheckBox.isChecked()
+                notes = dialog.notesInput.text()
+                dt = dialog.timeInput.dateTime()
+                if result:
+                    backend.new_event(self.table_row_ids[position.row()], dt.toSecsSinceEpoch(), notes,
+                                      'Done' if checked else 'Skipped')
+
+            elif type == 'Number':
+                dialog = uic.loadUi('uifiles/NumberEvent.ui')
+                dialog.setWindowTitle(f'{name}')
+                dialog.timeInput.setDateTime(datetime.now())
+                result = dialog.exec()
+                if result:
+                    data = dialog.valueInput.text()
+                    try:
+                        value = int(data)
+                        notes = dialog.notesInput.text()
+                        dt = dialog.timeInput.dateTime()
+                        backend.new_event(self.table_row_ids[position.row()], dt.toSecsSinceEpoch(), notes, str(value))
+                    except Exception:
+                        error = uic.loadUi('uifiles/ErrorWindow.ui')
+                        error.setWindowTitle('Error!')
+                        error.errorLabel.setText(f'{data} is not a number!')
+                        error.exec()
+
 
 app = QtWidgets.QApplication(sys.argv)
 main = MainWindow()
