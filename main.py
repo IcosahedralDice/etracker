@@ -12,6 +12,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, *args, **kwargs):
         self.displaying_events = True
+        self.table_row_ids = []
 
         super(MainWindow, self).__init__(*args, **kwargs)
 
@@ -23,6 +24,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.tableWidget.setFocusPolicy(QtCore.Qt.NoFocus)
         self.tableWidget.setSelectionMode(QAbstractItemView.NoSelection)
+        self.tableWidget.itemClicked.connect(lambda x: self.handle_table_clicks(x))
 
         self.searchBar.textEdited.connect(
             lambda x: self.reload_page(self.tableWidget, x))
@@ -40,13 +42,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.displaying_events:
             table.setUpdatesEnabled(False)
             data = backend.retrieve_events(limit=max_rows, match=match)
+            self.table_row_ids = [x[4] for x in data]
 
             table.setColumnCount(4)
             table.setHorizontalHeaderLabels(['Time', 'Event', 'Data', 'Notes'])
             table.setRowCount(min(max_rows, len(data)))
 
             for i in range(min(max_rows, len(data))):
-                for j in range(len(data[i])):
+                for j in range(4):
                     table.setItem(i, j, QTableWidgetItem(data[i][j]))
             table.resizeColumnsToContents()
             table.resizeRowsToContents()
@@ -54,6 +57,7 @@ class MainWindow(QtWidgets.QMainWindow):
             table.setUpdatesEnabled(True)
         else:
             data = backend.retrieve_event_types(match=match)
+            self.table_row_ids = [x[2] for x in data]
 
             table.setUpdatesEnabled(False)
             table.setColumnCount(2)
@@ -68,6 +72,21 @@ class MainWindow(QtWidgets.QMainWindow):
             table.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
             table.setUpdatesEnabled(True)
 
+    def handle_table_clicks(self, position: QtCore.QModelIndex):
+        if self.displaying_events:
+            # Open a window with the event
+            pass
+        else:
+            # Open a window to add an event of that type
+            name, type = backend.event_type_info(self.table_row_ids[position.row()])
+            if type == 'Normal':
+                dialog = uic.loadUi('uifiles/BasicEvent.ui')
+                dialog.setWindowTitle(f'{name}')
+                dialog.timeInput.setDateTime(datetime.now())
+                result = dialog.exec()
+                notes = dialog.notesInput.text()
+                dt = dialog.timeInput.dateTime()
+                backend.new_event(self.table_row_ids[position.row()], dt.toSecsSinceEpoch(), notes, None)
 
 app = QtWidgets.QApplication(sys.argv)
 main = MainWindow()
