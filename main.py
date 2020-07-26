@@ -26,6 +26,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tableWidget.setSelectionMode(QAbstractItemView.NoSelection)
         self.tableWidget.itemClicked.connect(lambda x: self.handle_table_clicks(x))
 
+        self.newEventType.triggered.connect(self.add_event)
+
         self.searchBar.textEdited.connect(
             lambda x: self.reload_page(self.tableWidget, x))
         self.addButton.clicked.connect(
@@ -119,6 +121,20 @@ class MainWindow(QtWidgets.QMainWindow):
                         error.errorLabel.setText(f'{data} is not a number!')
                         error.exec()
 
+    @staticmethod
+    def add_event():
+        dialog = uic.loadUi('uifiles/NewEventTypeDialog.ui')
+        result = dialog.exec()
+        if result:
+            cursor = backend.conn.cursor()
+            cursor.execute(f'''SELECT * from event_types WHERE name = '{dialog.lineEdit.text()}' ''')
+            existing = cursor.fetchall()
+            if len(existing) == 0:
+                backend.new_event_type(dialog.lineEdit.text(), dialog.comboBox.currentText())
+            else:
+                error = uic.loadUi('uifiles/ErrorWindow.ui')
+                error.errorLabel.setText(f'Already an event type called {dialog.lineEdit.text()}')
+                error.exec()
 
 app = QtWidgets.QApplication(sys.argv)
 main = MainWindow()

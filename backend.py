@@ -33,3 +33,13 @@ def new_event(type_id: int, time: int, notes: str, data: str = None):
     cursor.execute(f'INSERT INTO events (type_id, time, data, notes, created_time) VALUES (?, ?, ?, ?, ?)',
                    (type_id, time, data, notes, int(datetime.now().timestamp())))
     conn.commit()
+
+
+def new_event_type(name: str, type: str):
+    cursor = conn.cursor()
+    cursor.execute(f'INSERT INTO event_types (name, type) VALUES (?, ?)', (name, type))
+    row = cursor.lastrowid
+    now = int(datetime.now().timestamp())
+    cursor.execute(f'INSERT INTO events (type_id, time, notes, created_time) VALUES (?, ?, ?, ?)',
+                   (row, now, 'Created', now))
+    conn.commit()
