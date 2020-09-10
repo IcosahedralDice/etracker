@@ -41,11 +41,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.reload_page(self.tableWidget)
 
     def reload_page(self, table: QtWidgets.QTableWidget, match: str = ''):
+        table.setUpdatesEnabled(False)
         if self.displaying_events:
-            table.setUpdatesEnabled(False)
             data = backend.retrieve_events(limit=max_rows, match=match)
             self.table_row_ids = [x[4] for x in data]
-
             table.setColumnCount(4)
             table.setHorizontalHeaderLabels(['Time', 'Event', 'Data', 'Notes'])
             table.setRowCount(min(max_rows, len(data)))
@@ -53,15 +52,10 @@ class MainWindow(QtWidgets.QMainWindow):
             for i in range(min(max_rows, len(data))):
                 for j in range(4):
                     table.setItem(i, j, QTableWidgetItem(data[i][j]))
-            table.resizeColumnsToContents()
-            table.resizeRowsToContents()
             table.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
-            table.setUpdatesEnabled(True)
         else:
             data = backend.retrieve_event_types(match=match)
             self.table_row_ids = [x[2] for x in data]
-
-            table.setUpdatesEnabled(False)
             table.setColumnCount(2)
             table.setHorizontalHeaderLabels(['Type', 'Name'])
             table.setRowCount(len(data))
@@ -69,10 +63,12 @@ class MainWindow(QtWidgets.QMainWindow):
             for i in range(len(data)):
                 table.setItem(i, 0, QTableWidgetItem(data[i][0]))
                 table.setItem(i, 1, QTableWidgetItem(data[i][1]))
-            table.resizeColumnsToContents()
-            table.resizeRowsToContents()
             table.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
-            table.setUpdatesEnabled(True)
+
+        self.countLabel.setText(f'Count: {len(data)}')
+        table.resizeColumnsToContents()
+        table.resizeRowsToContents()
+        table.setUpdatesEnabled(True)
 
     def handle_table_clicks(self, position: QtCore.QModelIndex):
         if self.displaying_events:
