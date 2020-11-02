@@ -132,6 +132,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 error.errorLabel.setText(f'Already an event type called {dialog.lineEdit.text()}')
                 error.exec()
 
+
 app = QtWidgets.QApplication(sys.argv)
 main = MainWindow()
 main.show()
