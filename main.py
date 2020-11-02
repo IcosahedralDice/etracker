@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets, uic, QtCore
 import sys  # We need sys so that we can pass argv to QApplication
 import backend
+import argparse
 from datetime import datetime
 
 from PyQt5.QtWidgets import *
@@ -133,7 +134,23 @@ class MainWindow(QtWidgets.QMainWindow):
                 error.exec()
 
 
-app = QtWidgets.QApplication(sys.argv)
-main = MainWindow()
-main.show()
-sys.exit(app.exec_())
+parser = argparse.ArgumentParser(description='Tracks events')
+parser.add_argument('-a', '--add', metavar='EVENT', help='Add a event')
+args = vars(parser.parse_args())
+
+operation_done = False
+if args['add'] is not None:
+    cursor = backend.conn.cursor()
+    cursor.execute('SELECT id from event_types WHERE name = ?', (args['add'],))
+    result = cursor.fetchall()
+    if len(result) > 0:
+        backend.new_event(result[0][0], int(datetime.now().timestamp()), '', None)
+    else:
+        print('No such event')
+    operation_done = True
+
+if not operation_done:
+    app = QtWidgets.QApplication(sys.argv)
+    main = MainWindow()
+    main.show()
+    sys.exit(app.exec_())
